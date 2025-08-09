@@ -1,45 +1,23 @@
 import { apiGet } from "./api";
-import type { PagedResponse, Movie, GenreList } from "@/types/tmdb";
+import type { PagedResponse, MovieListItem, TVListItem, MovieDetail, TVDetail, GenreList } from "@/types/tmdb";
 
-export const getPopularMovies = (page=1) => 
-  apiGet<PagedResponse<Movie>>("/movies/popular", { page });
+// Movies
+export const getPopularMovies    = (page=1) => apiGet<PagedResponse<MovieListItem>>("/movies/popular",   { page });
+export const getTopRatedMovies   = (page=1) => apiGet<PagedResponse<MovieListItem>>("/movies/top-rated", { page });
+export const getNowPlayingMovies = (page=1) => apiGet<PagedResponse<MovieListItem>>("/movies/now-playing",{ page });
+export const getUpcomingMovies   = (page=1) => apiGet<PagedResponse<MovieListItem>>("/movies/upcoming",  { page });
 
-export const getTopRatedMovies = (page=1) => 
-  apiGet<PagedResponse<Movie>>("/movies/top-rated", { page });
+// TV
+export const getPopularTV        = (page=1) => apiGet<PagedResponse<TVListItem>>("/tv/popular",    { page });
+export const getTopRatedTV       = (page=1) => apiGet<PagedResponse<TVListItem>>("/tv/top-rated",  { page });
+export const getOnTheAirTV       = (page=1) => apiGet<PagedResponse<TVListItem>>("/tv/on-the-air", { page });
 
-export const getUpcomingMovies = (page=1) => 
-  apiGet<PagedResponse<Movie>>("/movies/upcoming", { page });
+// Details
+export const getMovieDetails     = (id:number) => apiGet<MovieDetail>(`/movies/${id}`);
+export const getTVDetails        = (id:number) => apiGet<TVDetail>(`/tv/${id}`);
 
-export const getNowPlayingMovies = (page=1) => 
-  apiGet<PagedResponse<Movie>>("/movies/now-playing", { page });
+// Genres
+export const getGenres           = () => apiGet<GenreList>("/movies/genres/list");
 
-export const getTrendingMovies = (window:"day"|"week"="day", page=1) =>
-  apiGet<PagedResponse<Movie>>(`/movies/trending/${window}`, { page });
-
-export const searchMovies = (q:string, page=1) =>
-  apiGet<PagedResponse<Movie>>("/movies/search", { q, page });
-
-export const getMovieDetails = (id:number, append?:string[]) =>
-  apiGet<any>(`/movies/${id}`, { append: append?.join(",") });
-
-export const getMovieCredits = (id:number) =>
-  apiGet<any>(`/movies/${id}/credits`);
-
-export const getMovieVideos  = (id:number) =>
-  apiGet<any>(`/movies/${id}/videos`);
-
-export const getGenres = () =>
-  apiGet<GenreList>("/movies/genres/list");
-
-export const discoverMovies = (params: { page?:number; with_genres?:string; sort_by?:string; year?:number; lang?:string } = {}) =>
-  apiGet<PagedResponse<Movie>>("/movies/discover/list", params as any);
-
-export const getPopularTV = (page: number) =>
-   apiGet(`/tv/popular?page=${page}`);
-
-export const getTopRatedTV = (page: number) => 
-  apiGet(`/tv/top-rated?page=${page}`)
-
-export const getOnTheAirTV = (page: number) => 
-  apiGet(`/tv/on-the-air?page=${page}`);
-
+// Combined (optional)
+export const getNewAndPopular    = (page=1) => apiGet<{ movies: MovieListItem[]; tv: TVListItem[] }>("/new-and-popular", { page });

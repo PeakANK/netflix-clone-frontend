@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 const nav = [
   { href: "/", label: "Home" },
   { href: "/movies", label: "Movies" },
+  { href: "/tv", label: "TV Shows" },
   { href: "/search", label: "Search" },
 ];
 
@@ -18,8 +19,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
-    onScroll();
-    window.addEventListener("scroll", onScroll);
+    onScroll(); window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -29,40 +29,25 @@ export default function Navbar() {
   }
 
   return (
-    <nav
-      className={[
-        "fixed inset-x-0 top-0 z-40 h-16 transition-colors duration-300",
-        scrolled ? "bg-black shadow-lg shadow-red-900/30" : "bg-black/90",
-      ].join(" ")}
-    >
+    <nav className={`fixed inset-x-0 top-0 z-40 h-16 transition-colors duration-300 ${scrolled ? "bg-black shadow-lg shadow-red-900/30" : "bg-black/90"}`}>
       <div className="mx-auto flex h-full max-w-7xl items-center gap-6 px-4 md:px-8">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <div className="h-6 w-5 bg-gradient-to-b from-red-500 to-red-700 rounded-sm shadow-lg shadow-red-900/40" />
           <span className="sr-only">Netflix Clone</span>
         </Link>
 
-        {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-6 text-sm">
           {nav.map((n) => {
-            const isActive = pathname === n.href;
+            const active = pathname === n.href;
             return (
-              <Link
-                key={n.href}
-                href={n.href}
-                className={`transition ${
-                  isActive
-                    ? "text-red-500 font-semibold"
-                    : "text-neutral-300 hover:text-white"
-                }`}
-              >
+              <Link key={n.href} href={n.href}
+                className={`transition ${active ? "text-red-500 font-semibold" : "text-neutral-300 hover:text-white"}`}>
                 {n.label}
               </Link>
             );
           })}
         </div>
 
-        {/* Search */}
         <form onSubmit={onSubmit} className="ml-auto">
           <input
             value={q}
