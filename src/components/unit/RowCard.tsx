@@ -2,15 +2,19 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function RowCard({ item }: { item: any }) {
+type Item = {
+  id: number;
+  title?: string;
+  name?: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  vote_average?: number;
+};
+
+export default function RowCard({ item }: { item: Item }) {
   const title = item.title ?? item.name ?? "Untitled";
   const path = item.poster_path || item.backdrop_path || "";
   const url = path ? `https://image.tmdb.org/t/p/w342${path}` : "";
-
-  // Temporary debug: open DevTools → Network → see if this 200s
-  if (process.env.NODE_ENV !== "production" && !path) {
-    // console.warn("No image path for", title, item); // uncomment if needed
-  }
 
   return (
     <Link href={`/movie/${item.id}`} className="snap-start">
@@ -22,7 +26,6 @@ export default function RowCard({ item }: { item: any }) {
             fill
             sizes="(max-width: 768px) 40vw, (max-width: 1024px) 18vw, 14vw"
             className="object-cover"
-            priority={false}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-neutral-400">

@@ -11,32 +11,34 @@ type Item = {
 
 export default function Hero({ item }: { item: Item }) {
   const title = item.title ?? item.name ?? "Featured";
-  const backdrop = item.backdrop_path || item.poster_path;
-  const img = backdrop ? `https://image.tmdb.org/t/p/original${backdrop}` : undefined;
+  const path = item.backdrop_path || item.poster_path || "";
+  const url = path ? `https://image.tmdb.org/t/p/original${path}` : "";
 
   return (
-    <section className="relative h-[70vh] md:h-[80vh] w-full">
-      {/* {img && (
-        <Image
-          src={img}
-          alt={title}
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-      )} */}
+    <section className="relative h-[78vh] md:h-[86vh] w-full">
+      {url && (
+        <Image src={url} alt={title} fill priority className="object-cover" sizes="100vw" />
+      )}
 
-      {/* gradient overlays */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-neutral-950/80 via-neutral-950/40 to-transparent" />
+      {/* Gradient overlays */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/80" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
 
-      <div className="absolute bottom-24 left-4 right-4 md:left-16 md:right-[30%] space-y-4">
-        <h1 className="text-3xl md:text-6xl font-extrabold drop-shadow-lg">
+      {/* Content */}
+      <div className="absolute inset-x-4 md:inset-x-16 inset-y-0 flex flex-col justify-center max-w-3xl space-y-4">
+        <h1 className="text-4xl md:text-6xl font-extrabold drop-shadow-lg leading-tight">
           {title}
         </h1>
+
         {item.overview && (
-          <p className="max-w-2xl text-sm md:text-base text-neutral-200/90 line-clamp-3">
+          <p
+            className="
+              text-sm md:text-base text-neutral-200/90
+              max-w-xl /* keeps it from stretching too wide */
+              line-clamp-3 /* limits number of visible lines */
+              leading-relaxed
+            "
+          >
             {item.overview}
           </p>
         )}
@@ -45,7 +47,7 @@ export default function Hero({ item }: { item: Item }) {
           <button className="rounded-md bg-white px-5 py-2.5 text-neutral-900 font-semibold hover:bg-neutral-200 transition">
             ▶ Play
           </button>
-          <button className="rounded-md bg-neutral-700/60 px-5 py-2.5 font-semibold hover:bg-neutral-600/80 transition">
+          <button className="rounded-md bg-neutral-700/70 px-5 py-2.5 font-semibold hover:bg-neutral-600/80 transition">
             ℹ More Info
           </button>
         </div>

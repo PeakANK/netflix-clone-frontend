@@ -31,13 +31,11 @@ export default async function HomePage({ searchParams }: { searchParams: SP }) {
     nowPlaying?.results?.[0];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white relative">
-      {/* Hero / billboard */}
+    <div className="min-h-screen bg-neutral-950 text-white">
       {heroItem && <Hero item={heroItem} />}
 
-      {/* Rows */}
-      <main className="relative z-10 pb-20">
-        <div className="space-y-10 px-4 md:px-8">
+      <main className="-mt-16 relative z-10 pb-20">
+        <div className="space-y-8 px-4 md:px-8">
           <SectionRow title="Popular on Netflix" items={popular?.results ?? []} />
           <SectionRow title="Top Rated" items={topRated?.results ?? []} />
           <SectionRow title="Now Playing" items={nowPlaying?.results ?? []} />
@@ -46,8 +44,8 @@ export default async function HomePage({ searchParams }: { searchParams: SP }) {
         </div>
       </main>
 
-      {/* Subtle background vignette */}
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(255,255,255,0.12),rgba(0,0,0,0))] opacity-25" />
+      {/* background vignette */}
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(255,255,255,0.12),rgba(0,0,0,0))] opacity-25"></div>
     </div>
   );
 }
