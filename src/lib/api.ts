@@ -1,24 +1,19 @@
-import type { BackendEnvelope } from "@/types/http";
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
-const BASE = process.env.NEXT_PUBLIC_API_BASE_URL!;
+type Query = Record<string, string | number | boolean | undefined>;
 
-export async function apiData<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    next: { revalidate: 60 },
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
+function buildUrl(path: string, query?: Query) {
+  const url = new URL(path.replace(/^\/+/, ""), BASE_URL);
+  if (query) Object.entries(query).forEach(([k, v]) => v != null && url.searchParams.set(k, String(v)));
+  return url.toString();
+}
 
-  if (!res.ok) throw new Error(`API ${res.status} ${res.statusText} on ${path}`);
-
-  const body = (await res.json()) as BackendEnvelope<T> | T;
-
-  // If backend wraps the response, unwrap .data
-  if (typeof body === "object" && body && "data" in (body as any) && "statusCode" in (body as any)) {
-    return (body as BackendEnvelope<T>).data;
+export async function apiGet<T>(path: string, query?: Query, init?: RequestInit): Promise<T> {
+  const res = await fetch(buildUrl(path, query), { cache: "no-store", ...init });
+  if (!res.ok) {
+    let msg = res.statusText;
+    try { const b = await res.json(); msg = b?.message || msg; } catch {}
+    throw new Error(`API ${res.status} ${msg} on ${path}`);
   }
-  return body as T;
+  return res.json();
 }

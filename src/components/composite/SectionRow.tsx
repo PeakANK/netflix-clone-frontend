@@ -1,14 +1,31 @@
-import MediaCard from "@/components/MediaCard";
-import type { Media } from "@/types/media";
+"use client";
 
-export default function SectionRow({ title, items }: { title: string; items: Media[] }) {
+import RowCard from "../unit/RowCard";
+
+type Item = {
+  id: number;
+  title?: string;
+  name?: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  vote_average?: number;
+};
+
+export default function SectionRow({ title, items }: { title: string; items: Item[] }) {
   return (
-    <section>
-      <h2 className="mb-3 text-xl font-semibold">{title}</h2>
-      <div className="flex gap-3 overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700">
-        {items.map((m) => (
-          <MediaCard key={`${m.media_type ?? "m"}-${m.id}`} item={m} />
-        ))}
+    <section className="space-y-3">
+      <h2 className="px-4 md:px-8 text-lg md:text-xl font-semibold">{title}</h2>
+
+      <div className="group relative">
+        {/* fade edges like Netflix */}
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
+
+        <div className="flex gap-3 overflow-x-auto scroll-smooth px-4 md:px-8 snap-x snap-mandatory scrollbar-hide">
+          {items?.map((m) => (
+            <RowCard key={m.id} item={m} />
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1,128 +1,53 @@
-// import Image from "next/image";
-
-// export default function Home() {
-//   return (
-//     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-//       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-//         <Image
-//           className="dark:invert"
-//           src="/next.svg"
-//           alt="Next.js logo"
-//           width={180}
-//           height={38}
-//           priority
-//         />
-//         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-//           <li className="mb-2 tracking-[-.01em]">
-//             Get started by editing{" "}
-//             <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-//               src/app/page.tsx
-//             </code>
-//             .
-//           </li>
-//           <li className="tracking-[-.01em]">
-//             Save and see your changes instantly.
-//           </li>
-//         </ol>
-
-//         <div className="flex gap-4 items-center flex-col sm:flex-row">
-//           <a
-//             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-//             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             <Image
-//               className="dark:invert"
-//               src="/vercel.svg"
-//               alt="Vercel logomark"
-//               width={20}
-//               height={20}
-//             />
-//             Deploy now
-//           </a>
-//           <a
-//             className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-//             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             Read our docs
-//           </a>
-//         </div>
-//       </main>
-//       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-//         <a
-//           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-//           href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/file.svg"
-//             alt="File icon"
-//             width={16}
-//             height={16}
-//           />
-//           Learn
-//         </a>
-//         <a
-//           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-//           href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/window.svg"
-//             alt="Window icon"
-//             width={16}
-//             height={16}
-//           />
-//           Examples
-//         </a>
-//         <a
-//           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-//           href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/globe.svg"
-//             alt="Globe icon"
-//             width={16}
-//             height={16}
-//           />
-//           Go to nextjs.org →
-//         </a>
-//       </footer>
-//     </div>
-//   );
-// }
-
+// src/app/(public)/page.tsx
+import {
+  getPopularMovies,
+  getTopRatedMovies,
+  getUpcomingMovies,
+  getNowPlayingMovies,
+  getTrendingMovies,
+} from "@/lib/movies";
 import Hero from "@/components/composite/Hero";
 import SectionRow from "@/components/composite/SectionRow";
-import {getPopularMovies} from "@/lib/movies";
 
-export default async function HomePage({ searchParams }: { searchParams?: { page?: string } }) {
-  const page = Number(searchParams?.page ?? 1);
+type SP = Promise<{ page?: string | string[] }>;
 
-  const [popularMovies,] = await Promise.all([
+export default async function HomePage({ searchParams }: { searchParams: SP }) {
+  const sp = await searchParams;
+  const pageStr = Array.isArray(sp.page) ? sp.page[0] : sp.page;
+  const page = Math.max(1, Number(pageStr ?? 1) || 1);
+
+  const [popular, topRated, upcoming, nowPlaying, trendingDay] = await Promise.all([
     getPopularMovies(page),
+    getTopRatedMovies(page),
+    getUpcomingMovies(page),
+    getNowPlayingMovies(page),
+    getTrendingMovies("day", page),
   ]);
-  console.log(popularMovies);
+
+  const heroItem =
+    popular?.results?.[0] ??
+    trendingDay?.results?.[0] ??
+    topRated?.results?.[0] ??
+    nowPlaying?.results?.[0];
+
   return (
-    <div className="space-y-10">
-      {/* <Hero items={trending.results.slice(0, 10)} /> */}
-      <div className="space-y-8 px-4 md:px-8">
-        {/* <SectionRow title="Trending Now" items={trending.results} /> */}
-        <SectionRow title="Popular Movies" items={popularMovies.results} />
-        {/* <SectionRow title="Top Rated Movies" items={topRated.results} />
-        <SectionRow title="Popular TV" items={popularTV.results} /> */}
-      </div>
+    <div className="min-h-screen bg-neutral-950 text-white relative">
+      {/* Hero / billboard */}
+      {heroItem && <Hero item={heroItem} />}
+
+      {/* Rows */}
+      <main className="relative z-10 pb-20">
+        <div className="space-y-10 px-4 md:px-8">
+          <SectionRow title="Popular on Netflix" items={popular?.results ?? []} />
+          <SectionRow title="Top Rated" items={topRated?.results ?? []} />
+          <SectionRow title="Now Playing" items={nowPlaying?.results ?? []} />
+          <SectionRow title="Upcoming" items={upcoming?.results ?? []} />
+          <SectionRow title="Trending Today" items={trendingDay?.results ?? []} />
+        </div>
+      </main>
+
+      {/* Subtle background vignette */}
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(255,255,255,0.12),rgba(0,0,0,0))] opacity-25" />
     </div>
   );
 }
-
