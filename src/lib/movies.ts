@@ -1,10 +1,18 @@
 import { apiGet } from "./api";
 import type { PagedResponse, Movie, GenreList } from "@/types/tmdb";
 
-export const getPopularMovies = (page=1) => apiGet<PagedResponse<Movie>>("/movies/popular", { page });
-export const getTopRatedMovies = (page=1) => apiGet<PagedResponse<Movie>>("/movies/top-rated", { page });
-export const getUpcomingMovies = (page=1) => apiGet<PagedResponse<Movie>>("/movies/upcoming", { page });
-export const getNowPlayingMovies = (page=1) => apiGet<PagedResponse<Movie>>("/movies/now-playing", { page });
+export const getPopularMovies = (page=1) => 
+  apiGet<PagedResponse<Movie>>("/movies/popular", { page });
+
+export const getTopRatedMovies = (page=1) => 
+  apiGet<PagedResponse<Movie>>("/movies/top-rated", { page });
+
+export const getUpcomingMovies = (page=1) => 
+  apiGet<PagedResponse<Movie>>("/movies/upcoming", { page });
+
+export const getNowPlayingMovies = (page=1) => 
+  apiGet<PagedResponse<Movie>>("/movies/now-playing", { page });
+
 export const getTrendingMovies = (window:"day"|"week"="day", page=1) =>
   apiGet<PagedResponse<Movie>>(`/movies/trending/${window}`, { page });
 
@@ -25,3 +33,13 @@ export const getGenres = () =>
 
 export const discoverMovies = (params: { page?:number; with_genres?:string; sort_by?:string; year?:number; lang?:string } = {}) =>
   apiGet<PagedResponse<Movie>>("/movies/discover/list", params as any);
+
+export const getPopularTV = (page: number) =>
+   apiGet(`/tv/popular?page=${page}`);
+
+export const getTopRatedTV = (page: number) => 
+  apiGet(`/tv/top-rated?page=${page}`)
+
+export const getOnTheAirTV = (page: number) => 
+  apiGet(`/tv/on-the-air?page=${page}`);
+
