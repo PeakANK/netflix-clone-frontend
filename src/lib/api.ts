@@ -1,27 +1,59 @@
-type Query = Record<string, string | number | boolean | undefined | null>;
+// src/lib/api.ts
 
-const SITE_BASE = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-const API_BASE  = process.env.API_BASE_URL || "http://localhost:4000";
+const BASE = process.env.NEXT_PUBLIC_API_BASE!;
+const KEY = process.env.NEXT_PUBLIC_API_KEY!;
 
-function buildUrl(path: string, query?: Query) {
-  const p = path.startsWith("/") ? path : `/${path}`;
-  const base = p.startsWith("/api/") ? SITE_BASE : API_BASE; // proxy vs backend
-  const url = new URL(p, base);
-  if (query) for (const [k, v] of Object.entries(query)) if (v != null) url.searchParams.set(k, String(v));
-  return url.toString();
-}
+if (!BASE) console.warn('Missing NEXT_PUBLIC_API_BASE');
+if (!KEY) console.warn('Missing NEXT_PUBLIC_API_KEY');
 
-export async function apiGet<T>(path: string, query?: Query, init?: RequestInit): Promise<T> {
-  let res: Response;
+type Q = Record<string, string | number | boolean | undefined>;
+
+/**
+ * GET wrapper that:
+ * - sends x-api-key header
+ * - unpacks { statusCode, message, data } -> returns data
+ * - still supports raw JSON (returns it as-is)
+ * - throws Error with the best available message on non-2xx
+ */
+export async function apiGet<T>(path: string, query?: Q, opts?: RequestInit): Promise<T> {
+  const url = new URL(path, BASE);
+  if (query) {
+    Object.entries(query).forEach(([k, v]) => {
+      if (v !== undefined) url.searchParams.set(k, String(v));
+    });
+  }
+
+  const res = await fetch(url.toString(), {
+    ...opts,
+    headers: {
+      ...(opts?.headers || {}),
+      'x-api-key': KEY,
+    },
+    cache: 'no-store',
+  });
+
+  // Try to parse JSON either way
+  let json: any = null;
   try {
-    res = await fetch(buildUrl(path, query), { cache: "no-store", ...init });
-  } catch (e: any) {
-    throw new Error(`Network error: ${e?.message ?? e}`);
+    json = await res.json();
+  } catch {
+    // ignore parse errors; json stays null
   }
+
   if (!res.ok) {
-    let msg = res.statusText;
-    try { const j = await res.json(); msg = (j as any)?.message || msg; } catch {}
-    throw new Error(`API ${res.status} ${msg} on ${path}`);
+    // Prefer backend "message" if present
+    const message =
+      json?.message ||
+      json?.error ||
+      `Request failed: ${res.status} ${res.statusText}`;
+    throw new Error(message);
   }
-  return res.json() as Promise<T>;
+
+  // Unwrap { data } if present (your backend format)
+  if (json && typeof json === 'object' && 'data' in json) {
+    return json.data as T;
+  }
+
+  // Fallback: raw JSON (e.g., calling TMDB directly someday)
+  return json as T;
 }

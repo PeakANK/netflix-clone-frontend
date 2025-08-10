@@ -1,11 +1,18 @@
-import "./globals.css";
+import type { ReactNode } from 'react';
+import './globals.css';
+import NavBar from '@/components/NavBar';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata = {
+  title: 'Netflix Clone',
+  description: 'TMDB-powered Netflix clone frontend',
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-neutral-950 text-white antialiased">
-        {children}
-        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(255,255,255,0.12),rgba(0,0,0,0))] opacity-25" />
+      <body className="min-h-screen">
+        <NavBar />
+        <main className="pt-20">{children}</main>
       </body>
     </html>
   );

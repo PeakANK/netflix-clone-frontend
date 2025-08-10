@@ -1,42 +1,19 @@
-export type Genre = { id: number; name: string };
-
-export interface MovieListItem {
-  id: number;
-  title: string;
-  overview?: string;
-  poster_path: string | null;
-  backdrop_path: string | null;
-  vote_average?: number;
-  release_date?: string;
-  genre_ids: number[];
-  popularity?: number;
-}
-
-export interface TVListItem {
-  id: number;
-  name: string;
-  overview?: string;
-  poster_path: string | null;
-  backdrop_path: string | null;
-  vote_average?: number;
-  first_air_date?: string;
-  genre_ids: number[];
-  popularity?: number;
-}
-
-export interface MovieDetail extends MovieListItem {
-  genres: Genre[];
-  runtime?: number;
-}
-
-export interface TVDetail extends TVListItem {
-  genres: Genre[];
-  episode_run_time?: number[];
-}
-
-export type PagedResponse<T> = {
+export interface PagedResponse<T> {
   page: number;
   results: T[];
   total_pages: number;
   total_results: number;
-};
+}
+
+export interface MovieListItem {
+  id: number;
+  title?: string;          // movie
+  name?: string;           // tv
+  poster_path: string | null;
+  backdrop_path: string | null;
+  vote_average: number;
+  release_date?: string;
+  first_air_date?: string;
+  overview: string;
+  media_type?: 'movie' | 'tv' | 'person';
+}

@@ -1,0 +1,81 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { apiGet } from '@/lib/api';
+import type { PagedResponse, MovieListItem } from '@/types/tmdb';
+import MediaCard from '@/components/MediaCard';
+import AddToListButton from '@/components/AddToListButton';
+
+export default function SearchPage() {
+  const [q, setQ] = useState('');
+  const [page, setPage] = useState(1);
+  const [results, setResults] = useState<MovieListItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setMore] = useState(false);
+
+  const doSearch = async (reset = false) => {
+    if (!q.trim()) return;
+    setLoading(true);
+    try {
+      const p = reset ? 1 : page;
+      const data = await apiGet<PagedResponse<MovieListItem>>('/api/search', { q, page: p });
+      setResults(reset ? data.results : [...results, ...data.results]);
+      setMore(p < data.total_pages);
+      setPage(p);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const id = setTimeout(() => { if (q.trim()) doSearch(true); }, 300);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
+
+  return (
+    <div className="px-6">
+      <h1 className="text-2xl font-bold mt-4 mb-3">Search</h1>
+      <input
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search movies or TV shows…"
+        className="w-full max-w-xl bg-neutral-900 rounded-md px-4 py-2 outline-none ring-1 ring-white/10 focus:ring-red-500"
+      />
+
+      <div className="mt-6 grid gap-6 grid-cols-[repeat(auto-fill,minmax(154px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
+        {results.map((m) => (
+          <MediaCard
+            key={`${m.media_type}-${m.id}-${m.poster_path}`}
+            id={m.id}
+            title={(m.title ?? m.name) || 'Untitled'}
+            poster_path={m.poster_path}
+            vote_average={m.vote_average}
+            footer={
+              <AddToListButton
+                item={{
+                  id: m.id,
+                  type: m.title ? 'movie' : 'tv',
+                  title: (m.title ?? m.name) || 'Untitled',
+                  poster: m.poster_path
+                }}
+              />
+            }
+          />
+        ))}
+      </div>
+
+      {hasMore && !loading && (
+        <div className="mt-6">
+          <button
+            onClick={() => { setPage(p => p + 1); setTimeout(() => doSearch(false), 0); }}
+            className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded"
+          >
+            Load more
+          </button>
+        </div>
+      )}
+      {loading && <div className="mt-4 text-white/70">Loading…</div>}
+    </div>
+  );
+}

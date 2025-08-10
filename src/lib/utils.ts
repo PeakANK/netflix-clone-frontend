@@ -1,12 +1,21 @@
-import type { Genre, MovieListItem, TVListItem, MovieDetail, TVDetail } from "@/types/tmdb";
+export const formatScore = (n?: number) =>
+  typeof n === 'number' ? Math.round(n * 10) / 10 : '–';
 
-type WithGenres = MovieDetail | TVDetail;
-type WithGenreIds = MovieListItem | TVListItem;
+export type ListItem = { id: number; type: 'movie'|'tv'; title: string; poster: string | null };
 
-export const titleOf = (x: any) => x?.title ?? x?.name ?? "Untitled";
+const LS_KEY = 'my_list_v1';
 
-export function getGenreNames(item: WithGenres | WithGenreIds, all: Genre[], n = 2) {
-  if ("genres" in item && Array.isArray(item.genres)) return item.genres.slice(0, n).map(g => g.name);
-  const ids = (item as WithGenreIds).genre_ids ?? [];
-  return ids.map(id => all.find(g => g.id === id)?.name).filter(Boolean).slice(0, n) as string[];
+export function getMyList(): ListItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+  } catch { return []; }
+}
+
+export function toggleInMyList(item: ListItem) {
+  const current = getMyList();
+  const exists = current.some(x => x.id === item.id && x.type === item.type);
+  const next = exists ? current.filter(x => !(x.id === item.id && x.type === item.type)) : [item, ...current];
+  localStorage.setItem(LS_KEY, JSON.stringify(next));
+  return next;
 }
