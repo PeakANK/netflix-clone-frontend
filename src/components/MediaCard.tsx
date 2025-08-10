@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { imageUrl } from '@/lib/queries';
+import { motion } from 'framer-motion';
 
 type Props = {
   id: number;
@@ -14,13 +15,21 @@ type Props = {
 
 export default function MediaCard({ title, poster_path, vote_average, onClick, footer }: Props) {
   return (
-    <div
+    <motion.div
       className="w-[154px] sm:w-[180px] md:w-[200px] shrink-0 cursor-pointer"
       onClick={onClick}
       role="button"
       tabIndex={0}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-neutral-900 shadow-[0_10px_30px_rgba(0,0,0,.35)]">
+      <motion.div
+        className="relative aspect-[2/3] rounded-xl overflow-hidden bg-neutral-900 shadow-[0_10px_30px_rgba(0,0,0,.35)]"
+        whileHover={{ scale: 1.03 }}
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      >
         {poster_path ? (
           <Image
             src={imageUrl(poster_path, 'w342')}
@@ -29,8 +38,10 @@ export default function MediaCard({ title, poster_path, vote_average, onClick, f
             className="object-cover"
             sizes="200px"
           />
-        ) : <div className="absolute inset-0 grid place-items-center text-white/50">No Image</div>}
-      </div>
+        ) : (
+          <div className="absolute inset-0 grid place-items-center text-white/50">No Image</div>
+        )}
+      </motion.div>
       <div className="mt-2">
         <div className="text-sm font-semibold line-clamp-2">{title}</div>
         {typeof vote_average === 'number' && (
@@ -38,6 +49,6 @@ export default function MediaCard({ title, poster_path, vote_average, onClick, f
         )}
         {footer}
       </div>
-    </div>
+    </motion.div>
   );
 }

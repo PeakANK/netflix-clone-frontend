@@ -1,25 +1,45 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MediaCard from './MediaCard';
 import AddToListButton from './AddToListButton';
 import DetailModal from './DetailModal';
 import { CardSkeleton } from './Skeleton';
 import { apiGet } from '@/lib/api';
 import type { PagedResponse, MovieListItem } from '@/types/tmdb';
+import { motion, type Variants } from 'framer-motion';
 
 type Props = {
   title: string;
-  endpoint: string;                 // e.g. "/api/movies/popular" or "/api/tv/popular"
+  endpoint: string;
   params?: Record<string, string | number>;
   mediaType: 'movie' | 'tv';
+};
+
+const containerVariants: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.04,
+      when: 'beforeChildren',
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] }, // was 'easeOut'
+  },
 };
 
 export default function SectionRow({ title, endpoint, params, mediaType }: Props) {
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<MovieListItem[]>([]);
   const [ids, setIds] = useState<Set<number>>(new Set());
-  const [loading, setLoading] = useState(false);     // both initial + pagination
+  const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -29,13 +49,11 @@ export default function SectionRow({ title, endpoint, params, mediaType }: Props
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<number | null>(null);
 
-  const q = useMemo(() => ({ page, ...params }), [page, params]);
-
   const fetchPage = async (p: number) => {
     if (loading || (!hasMore && p !== 1)) return;
     setLoading(true);
     try {
-      const data = await apiGet<PagedResponse<MovieListItem>>(endpoint, { ...params, page: p });
+      const data = await apiGet<PagedResponse<MovieListItem>>(endpoint, { ...(params || {}), page: p });
       setItems(prev => {
         const next: MovieListItem[] = p === 1 ? [] : [...prev];
         const newIds = p === 1 ? new Set<number>() : new Set(ids);
@@ -100,55 +118,43 @@ export default function SectionRow({ title, endpoint, params, mediaType }: Props
       <h2 className="text-xl font-bold px-6 mb-3">{title}</h2>
 
       <div ref={scrollRef} className="no-scrollbar overflow-x-auto px-6">
-        <div className="flex gap-4 items-start">
-          {/* Initial skeletons */}
-          {isInitialLoading && (
-            <>
-              {Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={`sk-${i}`} />)}
-            </>
-          )}
+        <motion.div
+          className="flex gap-4 items-start"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          {isInitialLoading && Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={`sk-${i}`} />)}
 
-          {/* Real items */}
-          {!isInitialLoading && items.map((m) => (
-            <MediaCard
-              key={`${mediaType}-${m.id}-${m.poster_path ?? ''}`}
-              id={m.id}
-              title={(m.title ?? m.name) || 'Untitled'}
-              poster_path={m.poster_path}
-              vote_average={m.vote_average}
-              onClick={() => onCardClick(m.id)}
-              footer={
-                <AddToListButton
-                  item={{
-                    id: m.id,
-                    type: mediaType,
-                    title: (m.title ?? m.name) || 'Untitled',
-                    poster: m.poster_path ?? null
-                  }}
+          {!isInitialLoading &&
+            items.map((m) => (
+              <motion.div key={`${mediaType}-${m.id}-${m.poster_path ?? ''}`} variants={itemVariants}>
+                <MediaCard
+                  id={m.id}
+                  title={(m.title ?? m.name) || 'Untitled'}
+                  poster_path={m.poster_path}
+                  vote_average={m.vote_average}
+                  onClick={() => onCardClick(m.id)}
+                  footer={
+                    <AddToListButton
+                      item={{
+                        id: m.id,
+                        type: mediaType,
+                        title: (m.title ?? m.name) || 'Untitled',
+                        poster: m.poster_path ?? null
+                      }}
+                    />
+                  }
                 />
-              }
-            />
-          ))}
+              </motion.div>
+            ))}
 
-          {/* Sentinel */}
           <div ref={endRef} className="shrink-0 w-2 h-[1px]" />
-
-          {/* Pagination skeletons */}
-          {isPaginating && (
-            <>
-              {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={`more-${i}`} />)}
-            </>
-          )}
-        </div>
+          {isPaginating && Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={`more-${i}`} />)}
+        </motion.div>
       </div>
 
-      {/* Detail Modal */}
-      <DetailModal
-        open={open}
-        onClose={() => setOpen(false)}
-        mediaType={mediaType}
-        id={activeId}
-      />
+      <DetailModal open={open} onClose={() => setOpen(false)} mediaType={mediaType} id={activeId} />
     </section>
   );
 }
