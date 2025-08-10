@@ -1,6 +1,11 @@
 import MoviesClient from "./MoviesClient";
-import { getPopularMovies, getTopRatedMovies, getNowPlayingMovies, getUpcomingMovies } from "@/lib/movies";
 import type { PagedResponse, MovieListItem } from "@/types/tmdb";
+import {
+  getPopularMovies,
+  getTopRatedMovies,
+  getNowPlayingMovies,
+  getUpcomingMovies,
+} from "@/features/movies";
 
 export default async function MoviesPage() {
   const [popular, topRated, nowPlaying, upcoming]: [

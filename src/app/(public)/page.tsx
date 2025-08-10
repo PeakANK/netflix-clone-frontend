@@ -1,11 +1,11 @@
+import Hero from "@/components/composite/Hero";
+import type { PagedResponse, MovieListItem } from "@/types/tmdb";
 import {
   getPopularMovies,
   getTopRatedMovies,
   getUpcomingMovies,
   getNowPlayingMovies,
-} from "@/lib/movies";
-import Hero from "@/components/composite/Hero";
-import type { PagedResponse, MovieListItem } from "@/types/tmdb";
+} from "@/features/movies";
 import HomeClient from "./HomeClient";
 
 type SP = Promise<{ page?: string | string[] }>;
@@ -35,12 +35,11 @@ export default async function HomePage({ searchParams }: { searchParams: SP }) {
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
       {heroItem && <Hero item={heroItem} />}
-
       <HomeClient
-        popular={popular?.results ?? []}
-        topRated={topRated?.results ?? []}
-        nowPlaying={nowPlaying?.results ?? []}
-        upcoming={upcoming?.results ?? []}
+        popular={popular.results}
+        topRated={topRated.results}
+        nowPlaying={nowPlaying.results}
+        upcoming={upcoming.results}
       />
     </div>
   );

@@ -2,8 +2,14 @@
 import { useEffect } from "react";
 
 export default function Modal({
-  open, onClose, children,
-}: { open: boolean; onClose: () => void; children: React.ReactNode; }) {
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();

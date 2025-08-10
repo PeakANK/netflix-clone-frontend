@@ -1,14 +1,16 @@
 "use client";
 import Image from "next/image";
 import type { MovieListItem, TVListItem } from "@/types/tmdb";
-
 type MediaItem = MovieListItem | TVListItem;
 
 export default function MovieCard({
-  item, onClick,
-}: { item: MediaItem; onClick: (id: number) => void; }) {
+  item,
+  onClick,
+}: {
+  item: MediaItem;
+  onClick: (id: number) => void;
+}) {
   const title = "title" in item ? item.title : item.name;
-
   return (
     <button
       onClick={() => onClick(item.id)}

@@ -40,5 +40,3 @@ export type PagedResponse<T> = {
   total_pages: number;
   total_results: number;
 };
-
-export type GenreList = { genres: Genre[] };
