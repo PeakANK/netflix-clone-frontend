@@ -27,7 +27,6 @@ export default function Hero({
 
   return (
     <section className="relative w-full h-[82vh] md:h-[80vh] overflow-hidden">
-      {/* Background image */}
       {backdrop_path && (
         <Image
           src={imageUrl(backdrop_path, 'original')}
@@ -63,7 +62,6 @@ export default function Hero({
             {title}
           </h1>
 
-          {/* Subtitle (mobile only) */}
           {subtitle && (
             <p className="mt-2 text-[13px] text-white/80 md:hidden">
               {subtitle}
@@ -77,9 +75,7 @@ export default function Hero({
             </p>
           )}
 
-          {/* ACTION BUTTONS */}
           <div className="mt-4 md:mt-6 flex items-center gap-4">
-            {/* My List */}
             <button
               className="hidden sm:flex items-center gap-2 text-white/90 bg-white/10 hover:bg-white/20 rounded-md px-3 py-2 text-sm md:hidden"
               title="My List"
@@ -88,7 +84,6 @@ export default function Hero({
               <span>My List</span>
             </button>
 
-            {/* My List Icon Only (mobile) */}
             <button
               className="sm:hidden grid place-items-center w-10 h-10 rounded-full bg-white/15 hover:bg-white/25"
               title="My List"
@@ -96,7 +91,6 @@ export default function Hero({
               ＋
             </button>
 
-            {/* Play */}
             <button
               className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white text-black font-semibold hover:bg-white/90"
               onClick={() => {}}
@@ -104,7 +98,6 @@ export default function Hero({
               ▶ <span>Play</span>
             </button>
 
-            {/* Info */}
             <button
               onClick={() => setOpen(true)}
               className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white/10 text-white/90 font-semibold hover:bg-white/20"
@@ -115,7 +108,6 @@ export default function Hero({
         </div>
       </div>
 
-      {/* Detail Modal */}
       <DetailModal open={open} onClose={() => setOpen(false)} mediaType={mediaType} id={id} />
     </section>
   );
