@@ -1,59 +1,77 @@
 // src/lib/api.ts
 
-const BASE = process.env.NEXT_PUBLIC_API_BASE!;
-const KEY = process.env.NEXT_PUBLIC_API_KEY!;
+type Wrapped<T> = { statusCode: number; message?: string; data: T };
 
-if (!BASE) console.warn('Missing NEXT_PUBLIC_API_BASE');
-if (!KEY) console.warn('Missing NEXT_PUBLIC_API_KEY');
+// Fallback base (dev) if env is missing
+const DEFAULT_BASE = 'http://localhost:4000';
 
-type Q = Record<string, string | number | boolean | undefined>;
+// Read base from env and validate protocol
+const ENV_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim();
+const BASE = ENV_BASE && /^(https?:)\/\//i.test(ENV_BASE) ? ENV_BASE : DEFAULT_BASE;
 
 /**
- * GET wrapper that:
- * - sends x-api-key header
- * - unpacks { statusCode, message, data } -> returns data
- * - still supports raw JSON (returns it as-is)
- * - throws Error with the best available message on non-2xx
+ * Build a full URL from a base and a path.
+ * - If `path` is absolute (starts with http/https), return as-is.
+ * - Otherwise, join with BASE and ensure a single slash.
  */
-export async function apiGet<T>(path: string, query?: Q, opts?: RequestInit): Promise<T> {
-  const url = new URL(path, BASE);
-  if (query) {
-    Object.entries(query).forEach(([k, v]) => {
-      if (v !== undefined) url.searchParams.set(k, String(v));
-    });
+function buildUrl(path: string, params?: Record<string, string | number>): string {
+  // Absolute URL? Use directly
+  if (/^https?:\/\//i.test(path)) {
+    const u = new URL(path);
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, String(v)));
+    }
+    return u.toString();
   }
 
-  const res = await fetch(url.toString(), {
-    ...opts,
+  // Ensure leading slash on path
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  const u = new URL(normalizedPath, BASE);
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, String(v)));
+  }
+  return u.toString();
+}
+
+function isWrapped<T>(x: unknown): x is Wrapped<T> {
+  return typeof x === 'object' && x !== null && 'statusCode' in x && 'data' in x;
+}
+
+/**
+ * GET helper that:
+ * - Sends x-api-key
+ * - Returns `data` if server responds with { statusCode, message, data }
+ * - Throws with a clean message on HTTP error
+ */
+export async function apiGet<T = unknown>(
+  path: string,
+  params?: Record<string, string | number>
+): Promise<T> {
+  const url = buildUrl(path, params);
+
+  const res = await fetch(url, {
     headers: {
-      ...(opts?.headers || {}),
-      'x-api-key': KEY,
+      'x-api-key': process.env.NEXT_PUBLIC_API_KEY ?? '',
     },
     cache: 'no-store',
   });
 
-  // Try to parse JSON either way
-  let json: any = null;
-  try {
-    json = await res.json();
-  } catch {
-    // ignore parse errors; json stays null
-  }
-
+  // HTTP-level error
   if (!res.ok) {
-    // Prefer backend "message" if present
-    const message =
-      json?.message ||
-      json?.error ||
-      `Request failed: ${res.status} ${res.statusText}`;
-    throw new Error(message);
+    let msg = `Request failed (${res.status})`;
+    try {
+      const body: unknown = await res.json();
+      if (typeof body === 'object' && body && 'message' in body) {
+        msg = String((body as { message?: unknown }).message ?? msg);
+      }
+    } catch {
+      // ignore JSON parse error
+    }
+    throw new Error(msg);
   }
 
-  // Unwrap { data } if present (your backend format)
-  if (json && typeof json === 'object' && 'data' in json) {
-    return json.data as T;
-  }
-
-  // Fallback: raw JSON (e.g., calling TMDB directly someday)
-  return json as T;
+  // Success: unwrap if needed
+  const json: unknown = await res.json();
+  return isWrapped<T>(json) ? json.data : (json as T);
 }

@@ -77,13 +77,8 @@ export default function SectionRow({ title, endpoint, params, mediaType }: Props
 
   // reset + first page on endpoint/params change
   useEffect(() => {
-    setPage(1);
-    setItems([]);
-    setIds(new Set());
-    setHasMore(true);
-    fetchPage(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endpoint, JSON.stringify(params)]);
+  fetchPage(1);
+}, [fetchPage]); // ✅ Now fetchPage is in deps
 
   // observe end-of-row inside the horizontal scroller
   useEffect(() => {
