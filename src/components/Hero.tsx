@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { imageUrl } from '@/lib/queries';
 import DetailModal from './DetailModal';
+import AddToListButton from './AddToListButton'; // <-- import
 
 type Props = {
   id: number;
@@ -62,13 +63,15 @@ export default function Hero({
 
           {/* Action Buttons */}
           <div className="mt-4 md:mt-6 flex items-center gap-4">
-            {/* My List */}
-            <button
-              className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white/10 text-white/90 font-semibold hover:bg-white/20"
-              title="My List"
-            >
-              ＋ <span className="hidden sm:inline">My List</span>
-            </button>
+            {/* My List (now functional) */}
+            <AddToListButton
+              item={{
+                id,
+                type: mediaType,
+                title: title,
+                poster: backdrop_path ?? null,
+              }}
+            />
 
             {/* Play */}
             <button

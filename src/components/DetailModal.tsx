@@ -198,7 +198,6 @@ export default function DetailModal({ open, onClose, mediaType, id }: Props) {
           )}
         </div>
       </div>
-      {/* ⬆️ end scroll wrapper */}
     </Modal>
   );
 }
