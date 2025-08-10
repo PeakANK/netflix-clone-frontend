@@ -1,5 +1,5 @@
+import MoviesClient from "./MoviesClient";
 import { getPopularMovies, getTopRatedMovies, getNowPlayingMovies, getUpcomingMovies } from "@/lib/movies";
-import SectionRow from "@/components/composite/SectionRow";
 import type { PagedResponse, MovieListItem } from "@/types/tmdb";
 
 export default async function MoviesPage() {
@@ -17,12 +17,12 @@ export default async function MoviesPage() {
 
   return (
     <div className="bg-black text-white min-h-screen">
-      <main className="mt-16 relative z-10 pb-20 space-y-10 px-4 md:px-8 max-w-7xl mx-auto">
-        <SectionRow title="Popular Movies" items={popular.results} />
-        <SectionRow title="Top Rated Movies" items={topRated.results} />
-        <SectionRow title="Now Playing Movies" items={nowPlaying.results} />
-        <SectionRow title="Upcoming Movies" items={upcoming.results} />
-      </main>
+      <MoviesClient
+        popular={popular.results}
+        topRated={topRated.results}
+        nowPlaying={nowPlaying.results}
+        upcoming={upcoming.results}
+      />
     </div>
   );
 }

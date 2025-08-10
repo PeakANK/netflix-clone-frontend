@@ -24,11 +24,15 @@ export interface TVListItem {
   popularity?: number;
 }
 
-export interface MovieDetail
-  extends Omit<MovieListItem, "genre_ids"> { genres: Genre[]; runtime?: number; }
+export interface MovieDetail extends MovieListItem {
+  genres: Genre[];
+  runtime?: number;
+}
 
-export interface TVDetail
-  extends Omit<TVListItem, "genre_ids"> { genres: Genre[]; episode_run_time?: number[]; }
+export interface TVDetail extends TVListItem {
+  genres: Genre[];
+  episode_run_time?: number[];
+}
 
 export type PagedResponse<T> = {
   page: number;

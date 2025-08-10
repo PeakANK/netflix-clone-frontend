@@ -1,18 +1,31 @@
-// src/components/composite/SectionRow.tsx
 "use client";
+
 import RowCard from "@/components/unit/RowCard";
 import type { MovieListItem, TVListItem } from "@/types/tmdb";
 
-export default function SectionRow({ title, items }: { title: string; items: (MovieListItem | TVListItem)[] }) {
+type MediaItem = MovieListItem | TVListItem;
+
+export type SectionRowProps = {
+  title: string;
+  items: MediaItem[];
+  onItemClick?: (id: number, item: MediaItem) => void; // <-- add this
+};
+
+export default function SectionRow({ title, items, onItemClick }: SectionRowProps) {
+  if (!items?.length) return null;
+
   return (
-    <section className="space-y-3">
-      <h2 className="px-1 md:px-0 text-lg md:text-xl font-semibold">{title}</h2>
-      <div className="group relative">
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
-        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
-        <div className="flex gap-3 overflow-x-auto scroll-smooth px-1 md:px-0 snap-x snap-mandatory scrollbar-hide">
-          {items?.map((m) => <RowCard key={m.id} item={m} />)}
-        </div>
+    <section className="space-y-2">
+      <h2 className="text-lg font-semibold">{title}</h2>
+
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 scrollbar-hide">
+        {items.map((item) => (
+          <RowCard
+            key={item.id}
+            item={item}
+            onOpen={onItemClick ? (id) => onItemClick(id, item) : undefined}
+          />
+        ))}
       </div>
     </section>
   );
