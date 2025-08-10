@@ -7,19 +7,27 @@ import { imageUrl } from '@/lib/queries';
 import DetailModal from './DetailModal';
 
 type Props = {
-  id: number;                          // ⬅️ add
-  mediaType: 'movie' | 'tv';           // ⬅️ add
+  id: number;
+  mediaType: 'movie' | 'tv';
   title: string;
   overview?: string;
   backdrop_path?: string | null;
+  subtitle?: string; // optional label row under title
 };
 
-export default function Hero({ id, mediaType, title, overview, backdrop_path }: Props) {
+export default function Hero({
+  id,
+  mediaType,
+  title,
+  overview,
+  backdrop_path,
+  subtitle,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   return (
-    <section className="relative w-full h-[60vh] md:h-[80vh]">
-      {/* Background */}
+    <section className="relative w-full h-[82vh] md:h-[80vh] overflow-hidden">
+      {/* Background image */}
       {backdrop_path && (
         <Image
           src={imageUrl(backdrop_path, 'original')}
@@ -27,37 +35,87 @@ export default function Hero({ id, mediaType, title, overview, backdrop_path }: 
           fill
           priority
           className="object-cover"
+          sizes="100vw"
         />
       )}
 
-      {/* Overlays */}
       <div className="absolute inset-0 bg-black/40" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-      {/* Content - left aligned, vertically centered */}
-      <div className="relative z-10 h-full flex items-center pl-6 md:pl-10">
-        <div className="max-w-xl">
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">{title}</h1>
+      <div
+        className="
+          relative z-10 h-full flex 
+          md:items-center items-end pb-20   /* <-- CHANGED: Mobile now aligns to bottom with padding */
+        "
+      >
+        <div
+          className="
+            w-full
+            px-4
+            md:px-10
+            flex flex-col
+            items-center text-center
+            md:items-start md:text-left
+            mx-auto
+          "
+        >
+          <h1 className="text-4xl leading-tight font-extrabold md:text-6xl">
+            {title}
+          </h1>
+
+          {/* Subtitle (mobile only) */}
+          {subtitle && (
+            <p className="mt-2 text-[13px] text-white/80 md:hidden">
+              {subtitle}
+            </p>
+          )}
+
+          {/* Overview */}
           {overview && (
-            <p className="mt-3 md:mt-4 text-sm md:text-base text-white/80 line-clamp-4 md:line-clamp-5">
+            <p className="mt-3 hidden sm:block text-sm md:text-base text-white/80 line-clamp-4 md:line-clamp-5 max-w-xl md:max-w-2xl">
               {overview}
             </p>
           )}
-          <div className="mt-4 md:mt-6 flex gap-3">
-            <button className="px-4 md:px-5 py-2 bg-white text-black rounded-md font-semibold hover:bg-white/90">
-              Play
+
+          {/* ACTION BUTTONS */}
+          <div className="mt-4 md:mt-6 flex items-center gap-4">
+            {/* My List */}
+            <button
+              className="hidden sm:flex items-center gap-2 text-white/90 bg-white/10 hover:bg-white/20 rounded-md px-3 py-2 text-sm md:hidden"
+              title="My List"
+            >
+              <span className="text-lg leading-none">＋</span>
+              <span>My List</span>
             </button>
+
+            {/* My List Icon Only (mobile) */}
+            <button
+              className="sm:hidden grid place-items-center w-10 h-10 rounded-full bg-white/15 hover:bg-white/25"
+              title="My List"
+            >
+              ＋
+            </button>
+
+            {/* Play */}
+            <button
+              className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white text-black font-semibold hover:bg-white/90"
+              onClick={() => {}}
+            >
+              ▶ <span>Play</span>
+            </button>
+
+            {/* Info */}
             <button
               onClick={() => setOpen(true)}
-              className="px-4 md:px-5 py-2 bg-white/20 hover:bg-white/30 rounded-md"
+              className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white/10 text-white/90 font-semibold hover:bg-white/20"
             >
-              More Info
+              ⓘ <span className="hidden sm:inline">Info</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Detail Modal (reuses your existing component) */}
+      {/* Detail Modal */}
       <DetailModal open={open} onClose={() => setOpen(false)} mediaType={mediaType} id={id} />
     </section>
   );
