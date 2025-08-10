@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import MediaCard from './MediaCard';
-import AddToListButton from './AddToListButton';
 import DetailModal from './DetailModal';
 import { CardSkeleton } from './Skeleton';
 import { apiGet } from '@/lib/api';
@@ -135,16 +134,6 @@ export default function SectionRow({ title, endpoint, params, mediaType }: Props
                   poster_path={m.poster_path}
                   vote_average={m.vote_average}
                   onClick={() => onCardClick(m.id)}
-                  footer={
-                    <AddToListButton
-                      item={{
-                        id: m.id,
-                        type: mediaType,
-                        title: (m.title ?? m.name) || 'Untitled',
-                        poster: m.poster_path ?? null
-                      }}
-                    />
-                  }
                 />
               </motion.div>
             ))}

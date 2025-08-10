@@ -12,7 +12,7 @@ type Props = {
   title: string;
   overview?: string;
   backdrop_path?: string | null;
-  subtitle?: string; // optional label row under title
+  subtitle?: string;
 };
 
 export default function Hero({
@@ -27,6 +27,7 @@ export default function Hero({
 
   return (
     <section className="relative w-full h-[82vh] md:h-[80vh] overflow-hidden">
+      {/* Background image */}
       {backdrop_path && (
         <Image
           src={imageUrl(backdrop_path, 'original')}
@@ -38,59 +39,38 @@ export default function Hero({
         />
       )}
 
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-      <div
-        className="
-          relative z-10 h-full flex 
-          md:items-center items-end pb-20   /* <-- CHANGED: Mobile now aligns to bottom with padding */
-        "
-      >
-        <div
-          className="
-            w-full
-            px-4
-            md:px-10
-            flex flex-col
-            items-center text-center
-            md:items-start md:text-left
-            mx-auto
-          "
-        >
+      {/* Content */}
+      <div className="relative z-10 h-full flex md:items-center items-end pb-20">
+        <div className="w-full px-4 md:px-10 flex flex-col items-center text-center md:items-start md:text-left mx-auto">
           <h1 className="text-4xl leading-tight font-extrabold md:text-6xl">
             {title}
           </h1>
 
           {subtitle && (
-            <p className="mt-2 text-[13px] text-white/80 md:hidden">
-              {subtitle}
-            </p>
+            <p className="mt-2 text-[13px] text-white/80 md:hidden">{subtitle}</p>
           )}
 
-          {/* Overview */}
           {overview && (
             <p className="mt-3 hidden sm:block text-sm md:text-base text-white/80 line-clamp-4 md:line-clamp-5 max-w-xl md:max-w-2xl">
               {overview}
             </p>
           )}
 
+          {/* Action Buttons */}
           <div className="mt-4 md:mt-6 flex items-center gap-4">
+            {/* My List */}
             <button
-              className="hidden sm:flex items-center gap-2 text-white/90 bg-white/10 hover:bg-white/20 rounded-md px-3 py-2 text-sm md:hidden"
+              className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white/10 text-white/90 font-semibold hover:bg-white/20"
               title="My List"
             >
-              <span className="text-lg leading-none">＋</span>
-              <span>My List</span>
+              ＋ <span className="hidden sm:inline">My List</span>
             </button>
 
-            <button
-              className="sm:hidden grid place-items-center w-10 h-10 rounded-full bg-white/15 hover:bg-white/25"
-              title="My List"
-            >
-              ＋
-            </button>
-
+            {/* Play */}
             <button
               className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white text-black font-semibold hover:bg-white/90"
               onClick={() => {}}
@@ -98,6 +78,7 @@ export default function Hero({
               ▶ <span>Play</span>
             </button>
 
+            {/* Info */}
             <button
               onClick={() => setOpen(true)}
               className="flex items-center justify-center gap-2 px-6 md:px-7 py-2.5 rounded-md bg-white/10 text-white/90 font-semibold hover:bg-white/20"
@@ -108,6 +89,7 @@ export default function Hero({
         </div>
       </div>
 
+      {/* Detail Modal */}
       <DetailModal open={open} onClose={() => setOpen(false)} mediaType={mediaType} id={id} />
     </section>
   );

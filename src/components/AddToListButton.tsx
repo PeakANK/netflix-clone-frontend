@@ -7,6 +7,7 @@ type Props = { item: ListItem };
 
 export default function AddToListButton({ item }: Props) {
   const [inList, setInList] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     setInList(getMyList().some(x => x.id === item.id && x.type === item.type));
@@ -18,11 +19,40 @@ export default function AddToListButton({ item }: Props) {
   };
 
   return (
-    <button
-      onClick={onToggle}
-      className="mt-1 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20"
+    <div
+      className="relative"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
     >
-      {inList ? 'Remove' : 'Add'}
-    </button>
+      {/* Circle button */}
+      <button
+        onClick={onToggle}
+        className="
+          w-10 h-10 flex items-center justify-center 
+          rounded-full 
+          bg-white/15 hover:bg-white/25 
+          transition-colors
+        "
+      >
+        <span className="text-2xl leading-none text-white">
+          {inList ? '✓' : '＋'}
+        </span>
+      </button>
+
+      {/* Tooltip */}
+      {showTooltip && (
+        <div
+          className="
+            absolute left-1/2 -translate-x-1/2 mt-2
+            px-2 py-1 text-xs font-medium
+            bg-black text-white rounded
+            whitespace-nowrap
+            z-10
+          "
+        >
+          {inList ? 'Remove from My List' : 'Add to My List'}
+        </div>
+      )}
+    </div>
   );
 }
